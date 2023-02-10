@@ -1,0 +1,10 @@
+I2C_PROGRAM.d I2C_PROGRAM.o: .././I2C_PROGRAM.c .././DATA_TYPES.h \
+ .././BIT_MATH.h .././ATMEGA32_REG.h .././I2C_INTERFACE.h
+
+.././DATA_TYPES.h:
+
+.././BIT_MATH.h:
+
+.././ATMEGA32_REG.h:
+
+.././I2C_INTERFACE.h:

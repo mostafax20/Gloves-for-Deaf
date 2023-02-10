@@ -165,8 +165,8 @@ void LCD_goToSpecificPosition(u8 LineNumber, u8 Position)
 }
 static void PRIVATE_WriteHalfPort(u8 value)
 {
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN4,GET_BIT(value,0));
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN5,GET_BIT(value,1));
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN6,GET_BIT(value,2));
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN7,GET_BIT(value,3));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN4,GET_BIT(value,0));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN5,GET_BIT(value,1));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN6,GET_BIT(value,2));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN7,GET_BIT(value,3));
 }

@@ -43,7 +43,7 @@ int main(void)
 	
 	TWI_initMaster();
 	
-	EEPROM_writeByte(1,3);
+	EEPROM_writeByte(1,5);
 	LCD_goToSpecificPosition(LCD_LINE_ONE,0);
 LCD_display("value1=");
 	//EEPROM_writeByte(2,' ');

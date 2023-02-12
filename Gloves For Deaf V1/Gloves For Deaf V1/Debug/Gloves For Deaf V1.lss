@@ -771,32 +771,32 @@ static void PRIVATE_WriteHalfPort(u8 value)
 {
  3c2:	cf 93       	push	r28
  3c4:	c8 2f       	mov	r28, r24
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN4,GET_BIT(value,0));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN4,GET_BIT(value,0));
  3c6:	48 2f       	mov	r20, r24
  3c8:	41 70       	andi	r20, 0x01	; 1
  3ca:	64 e0       	ldi	r22, 0x04	; 4
- 3cc:	80 e0       	ldi	r24, 0x00	; 0
+ 3cc:	82 e0       	ldi	r24, 0x02	; 2
  3ce:	0e 94 b7 00 	call	0x16e	; 0x16e <DIO_SetPinValue>
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN5,GET_BIT(value,1));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN5,GET_BIT(value,1));
  3d2:	c1 fb       	bst	r28, 1
  3d4:	44 27       	eor	r20, r20
  3d6:	40 f9       	bld	r20, 0
  3d8:	65 e0       	ldi	r22, 0x05	; 5
- 3da:	80 e0       	ldi	r24, 0x00	; 0
+ 3da:	82 e0       	ldi	r24, 0x02	; 2
  3dc:	0e 94 b7 00 	call	0x16e	; 0x16e <DIO_SetPinValue>
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN6,GET_BIT(value,2));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN6,GET_BIT(value,2));
  3e0:	c2 fb       	bst	r28, 2
  3e2:	44 27       	eor	r20, r20
  3e4:	40 f9       	bld	r20, 0
  3e6:	66 e0       	ldi	r22, 0x06	; 6
- 3e8:	80 e0       	ldi	r24, 0x00	; 0
+ 3e8:	82 e0       	ldi	r24, 0x02	; 2
  3ea:	0e 94 b7 00 	call	0x16e	; 0x16e <DIO_SetPinValue>
-	DIO_SetPinValue(DIO_PORTA,DIO_PIN7,GET_BIT(value,3));
+	DIO_SetPinValue(DIO_PORTC,DIO_PIN7,GET_BIT(value,3));
  3ee:	c3 fb       	bst	r28, 3
  3f0:	44 27       	eor	r20, r20
  3f2:	40 f9       	bld	r20, 0
  3f4:	67 e0       	ldi	r22, 0x07	; 7
- 3f6:	80 e0       	ldi	r24, 0x00	; 0
+ 3f6:	82 e0       	ldi	r24, 0x02	; 2
  3f8:	0e 94 b7 00 	call	0x16e	; 0x16e <DIO_SetPinValue>
  3fc:	cf 91       	pop	r28
  3fe:	08 95       	ret
@@ -1249,37 +1249,37 @@ void LCD_goToSpecificPosition(u8 LineNumber, u8 Position)
 	//DIO_SetPinDirection(DIO_PORTA,DIO_PIN3,DIO_PIN_INPUT);
 	//DIO_SetPinDirection(DIO_PORTA,DIO_PIN4,DIO_PIN_INPUT);
 	/*LCD PINS*/
-	DIO_SetPinDirection(DIO_PORTA,DIO_PIN4,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTC,DIO_PIN4,DIO_PIN_OUTPUT);
  658:	41 e0       	ldi	r20, 0x01	; 1
  65a:	64 e0       	ldi	r22, 0x04	; 4
- 65c:	80 e0       	ldi	r24, 0x00	; 0
+ 65c:	82 e0       	ldi	r24, 0x02	; 2
  65e:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTA,DIO_PIN5,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTC,DIO_PIN5,DIO_PIN_OUTPUT);
  662:	41 e0       	ldi	r20, 0x01	; 1
  664:	65 e0       	ldi	r22, 0x05	; 5
- 666:	80 e0       	ldi	r24, 0x00	; 0
+ 666:	82 e0       	ldi	r24, 0x02	; 2
  668:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTA,DIO_PIN6,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTC,DIO_PIN6,DIO_PIN_OUTPUT);
  66c:	41 e0       	ldi	r20, 0x01	; 1
  66e:	66 e0       	ldi	r22, 0x06	; 6
- 670:	80 e0       	ldi	r24, 0x00	; 0
+ 670:	82 e0       	ldi	r24, 0x02	; 2
  672:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTA,DIO_PIN7,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTC,DIO_PIN7,DIO_PIN_OUTPUT);
  676:	41 e0       	ldi	r20, 0x01	; 1
  678:	67 e0       	ldi	r22, 0x07	; 7
- 67a:	80 e0       	ldi	r24, 0x00	; 0
+ 67a:	82 e0       	ldi	r24, 0x02	; 2
  67c:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTB,DIO_PIN1,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTB,DIO_PIN1,DIO_PIN_OUTPUT);
  680:	41 e0       	ldi	r20, 0x01	; 1
  682:	61 e0       	ldi	r22, 0x01	; 1
  684:	81 e0       	ldi	r24, 0x01	; 1
  686:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTB,DIO_PIN2,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTB,DIO_PIN2,DIO_PIN_OUTPUT);
  68a:	41 e0       	ldi	r20, 0x01	; 1
  68c:	62 e0       	ldi	r22, 0x02	; 2
  68e:	81 e0       	ldi	r24, 0x01	; 1
  690:	0e 94 41 00 	call	0x82	; 0x82 <DIO_SetPinDirection>
-	DIO_SetPinDirection(DIO_PORTB,DIO_PIN3,DIO_PIN_OUTPUT);
+	 DIO_SetPinDirection(DIO_PORTB,DIO_PIN3,DIO_PIN_OUTPUT);
  694:	41 e0       	ldi	r20, 0x01	; 1
  696:	63 e0       	ldi	r22, 0x03	; 3
  698:	81 e0       	ldi	r24, 0x01	; 1
@@ -1293,8 +1293,8 @@ void LCD_goToSpecificPosition(u8 LineNumber, u8 Position)
 	TWI_initMaster();
  6a2:	0e 94 6f 01 	call	0x2de	; 0x2de <TWI_initMaster>
 	
-	EEPROM_writeByte(1,3);
- 6a6:	63 e0       	ldi	r22, 0x03	; 3
+	EEPROM_writeByte(1,5);
+ 6a6:	65 e0       	ldi	r22, 0x05	; 5
  6a8:	81 e0       	ldi	r24, 0x01	; 1
  6aa:	90 e0       	ldi	r25, 0x00	; 0
  6ac:	0e 94 2d 01 	call	0x25a	; 0x25a <EEPROM_writeByte>

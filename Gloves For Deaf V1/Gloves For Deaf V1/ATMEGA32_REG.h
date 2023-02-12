@@ -90,4 +90,12 @@
 //TWI (Slave) Address Register
 #define TWAR			(*(volatile u8*)0x22)
 
+/* EEPROM */ 
+
+#define EEARL              *((volatile u8*)0x3E)
+#define EEARH              *((volatile u8*)0x3F)
+#define EEDR               *((volatile u8*)0x3D)
+#define EECR               *((volatile u8*)0x3C)
+#define EEAR_u16           *((volatile u16*)0x3E)
+
 #endif /* ATMEGA32_REG_H_ */

@@ -39,7 +39,7 @@ SUBDIRS :=
 C_SRCS +=  \
 ../ADC_program.c \
 ../DIO_Program.c \
-../EEPROM.c \
+../EEPROM_program.c \
 ../I2C_PROGRAM.c \
 ../LCD_program.c \
 ../main.c
@@ -54,7 +54,7 @@ ASM_SRCS +=
 OBJS +=  \
 ADC_program.o \
 DIO_Program.o \
-EEPROM.o \
+EEPROM_program.o \
 I2C_PROGRAM.o \
 LCD_program.o \
 main.o
@@ -62,7 +62,7 @@ main.o
 OBJS_AS_ARGS +=  \
 ADC_program.o \
 DIO_Program.o \
-EEPROM.o \
+EEPROM_program.o \
 I2C_PROGRAM.o \
 LCD_program.o \
 main.o
@@ -70,7 +70,7 @@ main.o
 C_DEPS +=  \
 ADC_program.d \
 DIO_Program.d \
-EEPROM.d \
+EEPROM_program.d \
 I2C_PROGRAM.d \
 LCD_program.d \
 main.d
@@ -78,7 +78,7 @@ main.d
 C_DEPS_AS_ARGS +=  \
 ADC_program.d \
 DIO_Program.d \
-EEPROM.d \
+EEPROM_program.d \
 I2C_PROGRAM.d \
 LCD_program.d \
 main.d
@@ -111,7 +111,7 @@ LINKER_SCRIPT_DEP+=
 	@echo Finished building: $<
 	
 
-./EEPROM.o: .././EEPROM.c
+./EEPROM_program.o: .././EEPROM_program.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega32 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega32" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

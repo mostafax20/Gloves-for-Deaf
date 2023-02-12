@@ -113,15 +113,7 @@ void LCD_sendChar(u8 data)
 	_delay_ms(1);
 	DIO_SetPinValue(DIO_PORTB,DIO_PIN3,DIO_PIN_LOW);
 }
-void LCD_display(u8*string)
-{
-	u8 counter=0;
-	while (string[counter]!='\0')
-	{
-		LCD_sendChar(string[counter]);
-		++counter;
-	}
-}
+
 void LCD_writeNumber(u32 number)
 {
 	u32 Local_reversed = 1;
@@ -163,6 +155,37 @@ void LCD_goToSpecificPosition(u8 LineNumber, u8 Position)
 		}
 	}
 }
+
+void LCD_display(u8*string)
+{
+	u8 check = -1;
+	if((string[16] != ' ') || (string[16] != '\0'))
+	{
+		for(u8 j = 16; j > 0; j--)
+		{
+			if(string[j] = ' ')
+			{
+				check = j;
+			}
+		u8 counter=0;
+		while (string[counter]!='\0')
+		{	
+			if(counter == check)
+			{
+				LCD_goToSpecificPosition(2, 0);
+				LCD_sendChar(string[counter]);
+				++counter;
+			}
+			else
+			{
+				LCD_sendChar(string[counter]);
+				++counter;
+			}
+		}
+		}
+	}
+}
+
 static void PRIVATE_WriteHalfPort(u8 value)
 {
 	DIO_SetPinValue(DIO_PORTC,DIO_PIN4,GET_BIT(value,0));

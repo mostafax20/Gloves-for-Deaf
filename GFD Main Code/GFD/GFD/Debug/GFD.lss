@@ -21,11 +21,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000260  00000000  00000000  0000554c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000068d  00000000  00000000  000057ac  2**0
+  9 .debug_str    000006ec  00000000  00000000  000057ac  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000f2e  00000000  00000000  00005e39  2**0
+ 10 .debug_loc    00000f2e  00000000  00000000  00005e98  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000158  00000000  00000000  00006d67  2**0
+ 11 .debug_ranges 00000158  00000000  00000000  00006dc6  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -67,82 +67,52 @@ Disassembly of section .text:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <ADC_init>:
-#include "ADC_interface.h"
-
-void ADC_init( void )
-{
-	// SELECT REFRENCE VOLTAGE "Vref" = AVCC
-	SET_BIT( ADMUX , 6 );
   6c:	87 b1       	in	r24, 0x07	; 7
   6e:	80 64       	ori	r24, 0x40	; 64
   70:	87 b9       	out	0x07, r24	; 7
-	CLR_BIT( ADMUX , 7 );
   72:	87 b1       	in	r24, 0x07	; 7
   74:	8f 77       	andi	r24, 0x7F	; 127
   76:	87 b9       	out	0x07, r24	; 7
-	// Select right adjustment to read all 10 bits 
-	CLR_BIT( ADMUX , 5 );
   78:	87 b1       	in	r24, 0x07	; 7
   7a:	8f 7d       	andi	r24, 0xDF	; 223
   7c:	87 b9       	out	0x07, r24	; 7
-	// SINGLE MODE (close auto trigger) 
-	CLR_BIT( ADCSRA , 5 );
   7e:	86 b1       	in	r24, 0x06	; 6
   80:	8f 7d       	andi	r24, 0xDF	; 223
   82:	86 b9       	out	0x06, r24	; 6
-	//ADC ENABLE
-	SET_BIT( ADCSRA , 7 );
   84:	86 b1       	in	r24, 0x06	; 6
   86:	80 68       	ori	r24, 0x80	; 128
   88:	86 b9       	out	0x06, r24	; 6
-	// Prescaler to adjust the clock 128 for 16MHZ ( 125 KHZ)
-	SET_BIT( ADCSRA , 0 );
   8a:	86 b1       	in	r24, 0x06	; 6
   8c:	81 60       	ori	r24, 0x01	; 1
   8e:	86 b9       	out	0x06, r24	; 6
-	SET_BIT( ADCSRA , 1 );
   90:	86 b1       	in	r24, 0x06	; 6
   92:	82 60       	ori	r24, 0x02	; 2
   94:	86 b9       	out	0x06, r24	; 6
-	SET_BIT( ADCSRA , 2 );
   96:	86 b1       	in	r24, 0x06	; 6
   98:	84 60       	ori	r24, 0x04	; 4
   9a:	86 b9       	out	0x06, r24	; 6
   9c:	08 95       	ret
 
 0000009e <ADC_getDigitalValue>:
-
-
-void ADC_getDigitalValue( u8 channelNum , u16* digitalValue )
-{
-		
-	if ( ( channelNum < 32 ) && ( digitalValue != NULL ) )
   9e:	80 32       	cpi	r24, 0x20	; 32
   a0:	b0 f4       	brcc	.+44     	; 0xce <ADC_getDigitalValue+0x30>
   a2:	61 15       	cp	r22, r1
   a4:	71 05       	cpc	r23, r1
   a6:	99 f0       	breq	.+38     	; 0xce <ADC_getDigitalValue+0x30>
-	{
-		ADMUX &= (0b11100000);//Clear the 5 bits to avoid error when changing channel number at runtime
   a8:	97 b1       	in	r25, 0x07	; 7
   aa:	90 7e       	andi	r25, 0xE0	; 224
   ac:	97 b9       	out	0x07, r25	; 7
-		ADMUX |= channelNum;//select channel number 
   ae:	97 b1       	in	r25, 0x07	; 7
   b0:	89 2b       	or	r24, r25
   b2:	87 b9       	out	0x07, r24	; 7
-		SET_BIT( ADCSRA , 6 );// start conversion 
   b4:	86 b1       	in	r24, 0x06	; 6
   b6:	80 64       	ori	r24, 0x40	; 64
   b8:	86 b9       	out	0x06, r24	; 6
-		while( GET_BIT( ADCSRA , 4 ) == 0 );//READ FLAG-> CONVERSION HAS BEEN ENDED WHEN FLAG =1  ( INFINITE LOOP UNTIL THE HARDWARE UPDATES THE FLAG )
   ba:	34 9b       	sbis	0x06, 4	; 6
   bc:	fe cf       	rjmp	.-4      	; 0xba <ADC_getDigitalValue+0x1c>
-        SET_BIT( ADCSRA , 4 );// TO CLEAR THE FLAG.....SETTING THE BIT -> THE FLAG WILL BE CLEARED TO AVOID CHANGING FLAG STATUS  	
   be:	86 b1       	in	r24, 0x06	; 6
   c0:	80 61       	ori	r24, 0x10	; 16
   c2:	86 b9       	out	0x06, r24	; 6
-	    *digitalValue = ADC_u16;//read digital value (all 10 bits ) 
   c4:	84 b1       	in	r24, 0x04	; 4
   c6:	95 b1       	in	r25, 0x05	; 5
   c8:	fb 01       	movw	r30, r22
@@ -151,12 +121,6 @@ void ADC_getDigitalValue( u8 channelNum , u16* digitalValue )
   ce:	08 95       	ret
 
 000000d0 <DIO_setPinDirection>:
-
-
-/* Pin Apis */								   
-void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
-{
-	if((PortId<=3) && (PinId<=7) && ((PinDirection == DIO_PIN_OUTPUT)||(PinDirection == DIO_PIN_INPUT)))
   d0:	84 30       	cpi	r24, 0x04	; 4
   d2:	08 f0       	brcs	.+2      	; 0xd6 <DIO_setPinDirection+0x6>
   d4:	72 c0       	rjmp	.+228    	; 0x1ba <DIO_setPinDirection+0xea>
@@ -166,8 +130,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
   dc:	42 30       	cpi	r20, 0x02	; 2
   de:	08 f0       	brcs	.+2      	; 0xe2 <DIO_setPinDirection+0x12>
   e0:	6c c0       	rjmp	.+216    	; 0x1ba <DIO_setPinDirection+0xea>
-	{
-		switch(PortId)
   e2:	81 30       	cpi	r24, 0x01	; 1
   e4:	01 f1       	breq	.+64     	; 0x126 <DIO_setPinDirection+0x56>
   e6:	30 f0       	brcs	.+12     	; 0xf4 <DIO_setPinDirection+0x24>
@@ -177,13 +139,8 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
   ee:	09 f4       	brne	.+2      	; 0xf2 <DIO_setPinDirection+0x22>
   f0:	4c c0       	rjmp	.+152    	; 0x18a <DIO_setPinDirection+0xba>
   f2:	08 95       	ret
-	 {
-		case DIO_PORTA:
-		if (DIO_PIN_OUTPUT == PinDirection)
   f4:	41 30       	cpi	r20, 0x01	; 1
   f6:	59 f4       	brne	.+22     	; 0x10e <DIO_setPinDirection+0x3e>
-		{
-			SET_BIT(DDRA,PinId);
   f8:	2a b3       	in	r18, 0x1a	; 26
   fa:	81 e0       	ldi	r24, 0x01	; 1
   fc:	90 e0       	ldi	r25, 0x00	; 0
@@ -195,10 +152,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  108:	82 2b       	or	r24, r18
  10a:	8a bb       	out	0x1a, r24	; 26
  10c:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(DDRA,PinId);
  10e:	2a b3       	in	r18, 0x1a	; 26
  110:	81 e0       	ldi	r24, 0x01	; 1
  112:	90 e0       	ldi	r25, 0x00	; 0
@@ -211,15 +164,8 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  120:	82 23       	and	r24, r18
  122:	8a bb       	out	0x1a, r24	; 26
  124:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTB:
-		if (DIO_PIN_OUTPUT == PinDirection)
  126:	41 30       	cpi	r20, 0x01	; 1
  128:	59 f4       	brne	.+22     	; 0x140 <DIO_setPinDirection+0x70>
-		{
-			SET_BIT(DDRB,PinId);
  12a:	27 b3       	in	r18, 0x17	; 23
  12c:	81 e0       	ldi	r24, 0x01	; 1
  12e:	90 e0       	ldi	r25, 0x00	; 0
@@ -231,10 +177,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  13a:	82 2b       	or	r24, r18
  13c:	87 bb       	out	0x17, r24	; 23
  13e:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(DDRB,PinId);
  140:	27 b3       	in	r18, 0x17	; 23
  142:	81 e0       	ldi	r24, 0x01	; 1
  144:	90 e0       	ldi	r25, 0x00	; 0
@@ -247,15 +189,8 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  152:	82 23       	and	r24, r18
  154:	87 bb       	out	0x17, r24	; 23
  156:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTC:
-		if (DIO_PIN_OUTPUT == PinDirection)
  158:	41 30       	cpi	r20, 0x01	; 1
  15a:	59 f4       	brne	.+22     	; 0x172 <DIO_setPinDirection+0xa2>
-		{
-			SET_BIT(DDRC,PinId);
  15c:	24 b3       	in	r18, 0x14	; 20
  15e:	81 e0       	ldi	r24, 0x01	; 1
  160:	90 e0       	ldi	r25, 0x00	; 0
@@ -267,10 +202,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  16c:	82 2b       	or	r24, r18
  16e:	84 bb       	out	0x14, r24	; 20
  170:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(DDRC,PinId);
  172:	24 b3       	in	r18, 0x14	; 20
  174:	81 e0       	ldi	r24, 0x01	; 1
  176:	90 e0       	ldi	r25, 0x00	; 0
@@ -283,15 +214,8 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  184:	82 23       	and	r24, r18
  186:	84 bb       	out	0x14, r24	; 20
  188:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTD:
-		if (DIO_PIN_OUTPUT == PinDirection)
  18a:	41 30       	cpi	r20, 0x01	; 1
  18c:	59 f4       	brne	.+22     	; 0x1a4 <DIO_setPinDirection+0xd4>
-		{
-			SET_BIT(DDRD,PinId);
  18e:	21 b3       	in	r18, 0x11	; 17
  190:	81 e0       	ldi	r24, 0x01	; 1
  192:	90 e0       	ldi	r25, 0x00	; 0
@@ -303,10 +227,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  19e:	82 2b       	or	r24, r18
  1a0:	81 bb       	out	0x11, r24	; 17
  1a2:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(DDRD,PinId);
  1a4:	21 b3       	in	r18, 0x11	; 17
  1a6:	81 e0       	ldi	r24, 0x01	; 1
  1a8:	90 e0       	ldi	r25, 0x00	; 0
@@ -321,12 +241,6 @@ void DIO_setPinDirection(u8 PortId, u8 PinId, u8 PinDirection)
  1ba:	08 95       	ret
 
 000001bc <DIO_setPinValue>:
-}
-
-
-void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
-{
-	if((PortId<=3) && (PinId<=7) && ((PinValue == DIO_PIN_HIGH)||(PinValue == DIO_PIN_LOW)))
  1bc:	84 30       	cpi	r24, 0x04	; 4
  1be:	08 f0       	brcs	.+2      	; 0x1c2 <DIO_setPinValue+0x6>
  1c0:	72 c0       	rjmp	.+228    	; 0x2a6 <DIO_setPinValue+0xea>
@@ -336,8 +250,6 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  1c8:	42 30       	cpi	r20, 0x02	; 2
  1ca:	08 f0       	brcs	.+2      	; 0x1ce <DIO_setPinValue+0x12>
  1cc:	6c c0       	rjmp	.+216    	; 0x2a6 <DIO_setPinValue+0xea>
-	{
-		switch(PortId)
  1ce:	81 30       	cpi	r24, 0x01	; 1
  1d0:	01 f1       	breq	.+64     	; 0x212 <DIO_setPinValue+0x56>
  1d2:	30 f0       	brcs	.+12     	; 0x1e0 <DIO_setPinValue+0x24>
@@ -347,13 +259,8 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  1da:	09 f4       	brne	.+2      	; 0x1de <DIO_setPinValue+0x22>
  1dc:	4c c0       	rjmp	.+152    	; 0x276 <DIO_setPinValue+0xba>
  1de:	08 95       	ret
-	{
-		case DIO_PORTA:
-		if (DIO_PIN_HIGH == PinValue)
  1e0:	41 30       	cpi	r20, 0x01	; 1
  1e2:	59 f4       	brne	.+22     	; 0x1fa <DIO_setPinValue+0x3e>
-		{
-			SET_BIT(PORTA,PinId);
  1e4:	2b b3       	in	r18, 0x1b	; 27
  1e6:	81 e0       	ldi	r24, 0x01	; 1
  1e8:	90 e0       	ldi	r25, 0x00	; 0
@@ -365,10 +272,6 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  1f4:	82 2b       	or	r24, r18
  1f6:	8b bb       	out	0x1b, r24	; 27
  1f8:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(PORTA,PinId);
  1fa:	2b b3       	in	r18, 0x1b	; 27
  1fc:	81 e0       	ldi	r24, 0x01	; 1
  1fe:	90 e0       	ldi	r25, 0x00	; 0
@@ -381,15 +284,8 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  20c:	82 23       	and	r24, r18
  20e:	8b bb       	out	0x1b, r24	; 27
  210:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTB:
-		if (DIO_PIN_HIGH == PinValue)
  212:	41 30       	cpi	r20, 0x01	; 1
  214:	59 f4       	brne	.+22     	; 0x22c <DIO_setPinValue+0x70>
-		{
-			SET_BIT(PORTB,PinId);
  216:	28 b3       	in	r18, 0x18	; 24
  218:	81 e0       	ldi	r24, 0x01	; 1
  21a:	90 e0       	ldi	r25, 0x00	; 0
@@ -401,10 +297,6 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  226:	82 2b       	or	r24, r18
  228:	88 bb       	out	0x18, r24	; 24
  22a:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(PORTB,PinId);
  22c:	28 b3       	in	r18, 0x18	; 24
  22e:	81 e0       	ldi	r24, 0x01	; 1
  230:	90 e0       	ldi	r25, 0x00	; 0
@@ -417,15 +309,8 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  23e:	82 23       	and	r24, r18
  240:	88 bb       	out	0x18, r24	; 24
  242:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTC:
-		if (DIO_PIN_HIGH == PinValue)
  244:	41 30       	cpi	r20, 0x01	; 1
  246:	59 f4       	brne	.+22     	; 0x25e <DIO_setPinValue+0xa2>
-		{
-			SET_BIT(PORTC,PinId);
  248:	25 b3       	in	r18, 0x15	; 21
  24a:	81 e0       	ldi	r24, 0x01	; 1
  24c:	90 e0       	ldi	r25, 0x00	; 0
@@ -437,10 +322,6 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  258:	82 2b       	or	r24, r18
  25a:	85 bb       	out	0x15, r24	; 21
  25c:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(PORTC,PinId);
  25e:	25 b3       	in	r18, 0x15	; 21
  260:	81 e0       	ldi	r24, 0x01	; 1
  262:	90 e0       	ldi	r25, 0x00	; 0
@@ -453,15 +334,8 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  270:	82 23       	and	r24, r18
  272:	85 bb       	out	0x15, r24	; 21
  274:	08 95       	ret
-		}
-		break;
-		
-		case DIO_PORTD:
-		if (DIO_PIN_HIGH == PinValue)
  276:	41 30       	cpi	r20, 0x01	; 1
  278:	59 f4       	brne	.+22     	; 0x290 <DIO_setPinValue+0xd4>
-		{
-			SET_BIT(PORTD,PinId);
  27a:	22 b3       	in	r18, 0x12	; 18
  27c:	81 e0       	ldi	r24, 0x01	; 1
  27e:	90 e0       	ldi	r25, 0x00	; 0
@@ -473,10 +347,6 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  28a:	82 2b       	or	r24, r18
  28c:	82 bb       	out	0x12, r24	; 18
  28e:	08 95       	ret
-		}
-		else
-		{
-			CLR_BIT(PORTD,PinId);
  290:	22 b3       	in	r18, 0x12	; 18
  292:	81 e0       	ldi	r24, 0x01	; 1
  294:	90 e0       	ldi	r25, 0x00	; 0
@@ -491,60 +361,30 @@ void DIO_setPinValue(u8 PortId, u8 PinId, u8 PinValue)
  2a6:	08 95       	ret
 
 000002a8 <EEPROM_Write_Byte>:
-
-
-void EEPROM_Write_Byte(u8 address,u8 value)
-{
-	
-	while( GET_BIT(EECR,1)==1 );  /* POLLING WITH BLOCKING to wait until the EEWE is cleared */
  2a8:	e1 99       	sbic	0x1c, 1	; 28
  2aa:	fe cf       	rjmp	.-4      	; 0x2a8 <EEPROM_Write_Byte>
-	
-	EEAR_u16 = address;
  2ac:	90 e0       	ldi	r25, 0x00	; 0
  2ae:	9f bb       	out	0x1f, r25	; 31
  2b0:	8e bb       	out	0x1e, r24	; 30
-	//EECR |= (1<<EERE);
-	
-	
-	EEDR = value;
  2b2:	6d bb       	out	0x1d, r22	; 29
-	SET_BIT(EECR,2);						//EECR |= (1<<EEMWE);
  2b4:	8c b3       	in	r24, 0x1c	; 28
  2b6:	84 60       	ori	r24, 0x04	; 4
  2b8:	8c bb       	out	0x1c, r24	; 28
-	SET_BIT(EECR,1);						//EECR |= (1<<EEWE);
  2ba:	8c b3       	in	r24, 0x1c	; 28
  2bc:	82 60       	ori	r24, 0x02	; 2
  2be:	8c bb       	out	0x1c, r24	; 28
  2c0:	08 95       	ret
 
 000002c2 <EEPROM_Read_Byte>:
-}
-
-u8 EEPROM_Read_Byte(u8 address)
-{
-	
-	while( GET_BIT(EECR,1)==1 );
  2c2:	e1 99       	sbic	0x1c, 1	; 28
  2c4:	fe cf       	rjmp	.-4      	; 0x2c2 <EEPROM_Read_Byte>
-	
-
-	EEAR_u16 = address;
  2c6:	90 e0       	ldi	r25, 0x00	; 0
  2c8:	9f bb       	out	0x1f, r25	; 31
  2ca:	8e bb       	out	0x1e, r24	; 30
-
-	SET_BIT(EECR,0);							//EECR |= (1<<EERE);
  2cc:	8c b3       	in	r24, 0x1c	; 28
  2ce:	81 60       	ori	r24, 0x01	; 1
  2d0:	8c bb       	out	0x1c, r24	; 28
-	
-
-	return EEDR;
  2d2:	8d b3       	in	r24, 0x1d	; 29
-	
-	
  2d4:	08 95       	ret
 
 000002d6 <savingSentences>:
@@ -1448,9 +1288,9 @@ void GDF_MainCode(void)
 			
 			//SENTENCE FROM EEPROM CORRESPONDING TO THE RELATIVE VALUES TO BE PRINTED ON THE LCD "I love you "
 			
-			u8 st[10];
-			st[9] = '\0';
- 93c:	1c 8a       	std	Y+20, r1	; 0x14
+			u8 st[11];
+			st[10] = '\0';
+ 93c:	1d 8a       	std	Y+21, r1	; 0x15
 			for(u8 i = 0; i <= 9; i++)
  93e:	f1 2c       	mov	r15, r1
  940:	0d c0       	rjmp	.+26     	; 0x95c <__stack+0xfd>
@@ -1470,8 +1310,8 @@ void GDF_MainCode(void)
 			
 			//SENTENCE FROM EEPROM CORRESPONDING TO THE RELATIVE VALUES TO BE PRINTED ON THE LCD "I love you "
 			
-			u8 st[10];
-			st[9] = '\0';
+			u8 st[11];
+			st[10] = '\0';
 			for(u8 i = 0; i <= 9; i++)
  95a:	f3 94       	inc	r15
  95c:	39 e0       	ldi	r19, 0x09	; 9
@@ -1975,12 +1815,6 @@ void GDF_MainCode(void)
  c08:	b8 cd       	rjmp	.-1168   	; 0x77a <GDF_MainCode+0x20>
 
 00000c0a <PRIVATE_WriteHalfPort>:
-		{
-			LCD_sendChar((Local_reversed%10)+'0');
-			Local_reversed /= 10;
-		}while (Local_reversed != 1);
-	}
-}
  c0a:	cf 93       	push	r28
  c0c:	c8 2f       	mov	r28, r24
  c0e:	48 2f       	mov	r20, r24
@@ -2162,45 +1996,24 @@ void GDF_MainCode(void)
  d9c:	08 95       	ret
 
 00000d9e <LCD_goToSpecificPosition>:
-void LCD_goToSpecificPosition(u8 LineNumber, u8 Position)
-{
-	if(LineNumber == LCD_LINE_ONE)
  d9e:	81 30       	cpi	r24, 0x01	; 1
  da0:	39 f4       	brne	.+14     	; 0xdb0 <LCD_goToSpecificPosition+0x12>
-	{
-		if(Position <= 15)
  da2:	60 31       	cpi	r22, 0x10	; 16
  da4:	68 f4       	brcc	.+26     	; 0xdc0 <LCD_goToSpecificPosition+0x22>
-		{
-			LCD_sendCmnd(0x80 + Position);
  da6:	80 e8       	ldi	r24, 0x80	; 128
  da8:	86 0f       	add	r24, r22
  daa:	0e 94 24 06 	call	0xc48	; 0xc48 <LCD_sendCmnd>
  dae:	08 95       	ret
-		}
-	}
-
-	else if (LineNumber == LCD_LINE_TWO)
  db0:	82 30       	cpi	r24, 0x02	; 2
  db2:	31 f4       	brne	.+12     	; 0xdc0 <LCD_goToSpecificPosition+0x22>
-	{
-		if(Position <= 15)
  db4:	60 31       	cpi	r22, 0x10	; 16
  db6:	20 f4       	brcc	.+8      	; 0xdc0 <LCD_goToSpecificPosition+0x22>
-		{
-			LCD_sendCmnd(0xc0 + Position);
  db8:	80 ec       	ldi	r24, 0xC0	; 192
  dba:	86 0f       	add	r24, r22
  dbc:	0e 94 24 06 	call	0xc48	; 0xc48 <LCD_sendCmnd>
  dc0:	08 95       	ret
 
 00000dc2 <LCD_display>:
-		}
-	}
-}
-
-void LCD_display(u8*string)
-{
  dc2:	ef 92       	push	r14
  dc4:	ff 92       	push	r15
  dc6:	0f 93       	push	r16
@@ -2208,86 +2021,34 @@ void LCD_display(u8*string)
  dca:	cf 93       	push	r28
  dcc:	df 93       	push	r29
  dce:	ec 01       	movw	r28, r24
-	u8 i = 0;
-	u8 length = 1;
  dd0:	91 e0       	ldi	r25, 0x01	; 1
-	}
-}
-
-void LCD_display(u8*string)
-{
-	u8 i = 0;
  dd2:	80 e0       	ldi	r24, 0x00	; 0
-	u8 length = 1;
-	while(string[i] != '\0')
  dd4:	02 c0       	rjmp	.+4      	; 0xdda <LCD_display+0x18>
-	{
-		length++;
  dd6:	9f 5f       	subi	r25, 0xFF	; 255
-		i++;
  dd8:	8f 5f       	subi	r24, 0xFF	; 255
-
-void LCD_display(u8*string)
-{
-	u8 i = 0;
-	u8 length = 1;
-	while(string[i] != '\0')
  dda:	fe 01       	movw	r30, r28
  ddc:	e8 0f       	add	r30, r24
  dde:	f1 1d       	adc	r31, r1
  de0:	20 81       	ld	r18, Z
  de2:	21 11       	cpse	r18, r1
  de4:	f8 cf       	rjmp	.-16     	; 0xdd6 <LCD_display+0x14>
-	{
-		length++;
-		i++;
-	}
-	
-	if(length > 17)
  de6:	92 31       	cpi	r25, 0x12	; 18
  de8:	48 f4       	brcc	.+18     	; 0xdfc <LCD_display+0x3a>
  dea:	2c c0       	rjmp	.+88     	; 0xe44 <LCD_display+0x82>
-		u8 check = -1;
-		if((string[16] != ' ') || (string[16] != '\0'))
-		{
-			for(u8 j = 16; j > 0; j--)
-			{
-				if(string[j] == ' ')
  dec:	fe 01       	movw	r30, r28
  dee:	e1 0f       	add	r30, r17
  df0:	f1 1d       	adc	r31, r1
  df2:	80 81       	ld	r24, Z
  df4:	80 32       	cpi	r24, 0x20	; 32
  df6:	31 f0       	breq	.+12     	; 0xe04 <LCD_display+0x42>
-	if(length > 17)
-	{
-		u8 check = -1;
-		if((string[16] != ' ') || (string[16] != '\0'))
-		{
-			for(u8 j = 16; j > 0; j--)
  df8:	11 50       	subi	r17, 0x01	; 1
  dfa:	01 c0       	rjmp	.+2      	; 0xdfe <LCD_display+0x3c>
  dfc:	10 e1       	ldi	r17, 0x10	; 16
  dfe:	11 11       	cpse	r17, r1
  e00:	f5 cf       	rjmp	.-22     	; 0xdec <LCD_display+0x2a>
-		i++;
-	}
-	
-	if(length > 17)
-	{
-		u8 check = -1;
  e02:	1f ef       	ldi	r17, 0xFF	; 255
-				{
-					check = j;
-					break;
-				}
-			}
-			u8 counter1 = 0;
  e04:	00 e0       	ldi	r16, 0x00	; 0
-			while (string[counter1]!='\0')
  e06:	16 c0       	rjmp	.+44     	; 0xe34 <LCD_display+0x72>
-			{
-				if(counter1 == (check+1))
  e08:	40 2f       	mov	r20, r16
  e0a:	50 e0       	ldi	r21, 0x00	; 0
  e0c:	21 2f       	mov	r18, r17
@@ -2297,31 +2058,16 @@ void LCD_display(u8*string)
  e14:	42 17       	cp	r20, r18
  e16:	53 07       	cpc	r21, r19
  e18:	51 f4       	brne	.+20     	; 0xe2e <LCD_display+0x6c>
-				{
-					LCD_goToSpecificPosition(2, 0);
  e1a:	60 e0       	ldi	r22, 0x00	; 0
  e1c:	82 e0       	ldi	r24, 0x02	; 2
  e1e:	0e 94 cf 06 	call	0xd9e	; 0xd9e <LCD_goToSpecificPosition>
-					LCD_sendChar(string[counter1]);
  e22:	f7 01       	movw	r30, r14
  e24:	80 81       	ld	r24, Z
  e26:	0e 94 99 06 	call	0xd32	; 0xd32 <LCD_sendChar>
-					++counter1;
  e2a:	0f 5f       	subi	r16, 0xFF	; 255
  e2c:	03 c0       	rjmp	.+6      	; 0xe34 <LCD_display+0x72>
-				}
-				else
-				{
-					LCD_sendChar(string[counter1]);
  e2e:	0e 94 99 06 	call	0xd32	; 0xd32 <LCD_sendChar>
-					++counter1;
  e32:	0f 5f       	subi	r16, 0xFF	; 255
-					check = j;
-					break;
-				}
-			}
-			u8 counter1 = 0;
-			while (string[counter1]!='\0')
  e34:	7e 01       	movw	r14, r28
  e36:	e0 0e       	add	r14, r16
  e38:	f1 1c       	adc	r15, r1
@@ -2330,51 +2076,25 @@ void LCD_display(u8*string)
  e3e:	81 11       	cpse	r24, r1
  e40:	e3 cf       	rjmp	.-58     	; 0xe08 <LCD_display+0x46>
  e42:	27 c0       	rjmp	.+78     	; 0xe92 <LCD_display+0xd0>
-					++counter1;
-				}
-			}
-		}
-	}
-	else if(string[16] == ' ')
  e44:	88 89       	ldd	r24, Y+16	; 0x10
  e46:	80 32       	cpi	r24, 0x20	; 32
  e48:	91 f0       	breq	.+36     	; 0xe6e <LCD_display+0xac>
  e4a:	10 e0       	ldi	r17, 0x00	; 0
  e4c:	1c c0       	rjmp	.+56     	; 0xe86 <LCD_display+0xc4>
-	{
-		u8 counter2 = 0;
-		while (string[counter2]!='\0')
-		{
-			if(counter2 <= 16)
  e4e:	11 31       	cpi	r17, 0x11	; 17
  e50:	50 f4       	brcc	.+20     	; 0xe66 <LCD_display+0xa4>
-			{
-				LCD_goToSpecificPosition(2, 0);
  e52:	60 e0       	ldi	r22, 0x00	; 0
  e54:	82 e0       	ldi	r24, 0x02	; 2
  e56:	0e 94 cf 06 	call	0xd9e	; 0xd9e <LCD_goToSpecificPosition>
-				LCD_sendChar(string[counter2]);
  e5a:	f7 01       	movw	r30, r14
  e5c:	80 81       	ld	r24, Z
  e5e:	0e 94 99 06 	call	0xd32	; 0xd32 <LCD_sendChar>
-				++counter2;
  e62:	1f 5f       	subi	r17, 0xFF	; 255
  e64:	05 c0       	rjmp	.+10     	; 0xe70 <LCD_display+0xae>
-			}
-			else
-			{
-				LCD_sendChar(string[counter2]);
  e66:	0e 94 99 06 	call	0xd32	; 0xd32 <LCD_sendChar>
-				++counter2;
  e6a:	1f 5f       	subi	r17, 0xFF	; 255
  e6c:	01 c0       	rjmp	.+2      	; 0xe70 <LCD_display+0xae>
  e6e:	10 e0       	ldi	r17, 0x00	; 0
-		}
-	}
-	else if(string[16] == ' ')
-	{
-		u8 counter2 = 0;
-		while (string[counter2]!='\0')
  e70:	7e 01       	movw	r14, r28
  e72:	e1 0e       	add	r14, r17
  e74:	f1 1c       	adc	r15, r1
@@ -2383,33 +2103,14 @@ void LCD_display(u8*string)
  e7a:	81 11       	cpse	r24, r1
  e7c:	e8 cf       	rjmp	.-48     	; 0xe4e <LCD_display+0x8c>
  e7e:	09 c0       	rjmp	.+18     	; 0xe92 <LCD_display+0xd0>
-	else
-	{
-		u8 counter3=0;
-		while (string[counter3]!='\0')
-		{
-			LCD_sendChar(string[counter3]);
  e80:	0e 94 99 06 	call	0xd32	; 0xd32 <LCD_sendChar>
-			++counter3;
  e84:	1f 5f       	subi	r17, 0xFF	; 255
-		}
-	}
-	else
-	{
-		u8 counter3=0;
-		while (string[counter3]!='\0')
  e86:	fe 01       	movw	r30, r28
  e88:	e1 0f       	add	r30, r17
  e8a:	f1 1d       	adc	r31, r1
  e8c:	80 81       	ld	r24, Z
  e8e:	81 11       	cpse	r24, r1
  e90:	f7 cf       	rjmp	.-18     	; 0xe80 <LCD_display+0xbe>
-		{
-			LCD_sendChar(string[counter3]);
-			++counter3;
-		}
-	}
-}
  e92:	df 91       	pop	r29
  e94:	cf 91       	pop	r28
  e96:	1f 91       	pop	r17
@@ -2419,10 +2120,6 @@ void LCD_display(u8*string)
  e9e:	08 95       	ret
 
 00000ea0 <LCD_clear>:
-
-void LCD_clear(void)
-{
-	LCD_sendCmnd(0x01);		/* Clear display */
  ea0:	81 e0       	ldi	r24, 0x01	; 1
  ea2:	0e 94 24 06 	call	0xc48	; 0xc48 <LCD_sendCmnd>
  ea6:	8f e3       	ldi	r24, 0x3F	; 63
@@ -2431,8 +2128,6 @@ void LCD_clear(void)
  eac:	f1 f7       	brne	.-4      	; 0xeaa <LCD_clear+0xa>
  eae:	00 c0       	rjmp	.+0      	; 0xeb0 <LCD_clear+0x10>
  eb0:	00 00       	nop
-	_delay_ms(2);
-	LCD_sendCmnd (0x80);		/* Cursor at home position */
  eb2:	80 e8       	ldi	r24, 0x80	; 128
  eb4:	0e 94 24 06 	call	0xc48	; 0xc48 <LCD_sendCmnd>
  eb8:	08 95       	ret

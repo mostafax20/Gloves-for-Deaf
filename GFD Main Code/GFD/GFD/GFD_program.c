@@ -203,8 +203,8 @@ void GDF_MainCode(void)
 			
 			//SENTENCE FROM EEPROM CORRESPONDING TO THE RELATIVE VALUES TO BE PRINTED ON THE LCD "I love you "
 			
-			u8 st[10];
-			st[9] = '\0';
+			u8 st[11];
+			st[10] = '\0';
 			for(u8 i = 0; i <= 9; i++)
 			{
 				st[i] = EEPROM_Read_Byte(i);

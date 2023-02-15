@@ -13,6 +13,7 @@ int main(void)
 {
 	GDF_PinDirectionInit();
 	GDF_MainCode();
+	
     /* Replace with your application code */
     while (1) 
     {
